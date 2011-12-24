@@ -1,0 +1,17 @@
+# Linux
+.*
+!.gitignore
+!.gitkeep
+*~
+
+# OS X
+.DS_Store
+# Thumbnails
+._*
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Project
+results/*.php

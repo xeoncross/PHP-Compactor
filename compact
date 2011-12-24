@@ -1,0 +1,105 @@
+<?php
+/**
+ * Compact the classes in the given directory to find the true character count
+ **/
+require(__DIR__ . '/PHPCompactor.php');
+
+// Stay out of certain directories that might contain HTML views that would throw us off
+$avoid = array(
+	'View',
+	'Views',
+	'view',
+	'views',
+	'Template',
+	'Templates',
+	'template',
+	'templates',
+);
+
+// Require a valid path
+if(empty($argv[1]) OR ! ($path = realpath(__DIR__ . '/' . $argv[1])))
+{
+	die("Please enter a valid path.\nExample: " . colorize('php compact ../dir/name/', 'blue') . "\n");
+}
+
+$output_file = FALSE;
+
+// If true, then save the results in a file in this directory
+if( ! empty($argv[2]))
+{
+	$output_file = 'results/' . preg_replace('/\W/', '_', $argv[1]) . '.php';
+}
+
+// Recursive
+$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path), RecursiveIteratorIterator::SELF_FIRST);
+// Just this directory
+//$iterator = new DirectoryIterator($path);
+
+$compactor = new PHPCompactor();
+
+$size = 0;
+$code = '';
+foreach ($iterator as $file)
+{
+	// We only want files
+	if ( ! $file->isFile()) continue;
+
+	// We only want PHP files
+	if ($file->getExtension() != 'php') continue;
+
+	// Skip this folder..?
+	$x = $file->getPath() . '/';
+	//print $x . "\n";
+	foreach($avoid as $dir)
+	{
+		if(preg_match('~/?' . $dir . '/~', $x))
+		{
+			continue(2);
+		}
+	}
+
+	$text = file_get_contents($file->getPathname());
+	$start_size = mb_strlen($text);
+	$size += $start_size;
+
+	// Parse the code
+	$text = $compactor->obfuscate($text);
+	$text = $compactor->minimize($text);
+
+	// Save our code for the master file output
+	$code .= substr($text, 6) . "\n";
+
+	$end_length = mb_strlen($text);
+
+	print "Compressed " . colorize(substr($file->getPathname(), strlen($path) + 1), 'yellow') . " from "
+		. colorize($start_size, 'red') . ' to '
+		. colorize($end_length, 'green') . " characters\n";
+}
+
+
+print str_repeat('-', 80) . "\n";
+print 'Original Size: ' . colorize(number_format($size), 'red') . " bytes\n";
+print "Compressed Size: " . colorize(number_format(mb_strlen($code)), 'green') . " bytes\n\n";
+
+
+if($output_file)
+{
+	file_put_contents($output_file, "<?php\n" . $code);
+	print colorize("Saved output to $output_file\n", 'yellow');
+}
+
+/**
+ * Color output text for the CLI
+ *
+ * @param string $text to color
+ * @param string $color of text
+ * @param string $background color
+ */
+function colorize($text, $color, $bold = FALSE)
+{
+	// Standard CLI colors
+	$colors = array_flip(array(30 => 'gray', 'red', 'green', 'yellow', 'blue', 'purple', 'cyan', 'white', 'black'));
+
+	// Escape string with color information
+	return"\033[" . ($bold ? '1' : '0') . ';' . $colors[$color] . "m$text\033[0m";
+}
