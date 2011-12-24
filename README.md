@@ -4,6 +4,16 @@ Do not use this to speed up your PHP by compacting it. I will come for you. Use 
 
 Instead use this to get an idea of the TRUE size of projects by comparing the actual number of characters required to run that class - without long variable names, comments, or other added "fluff".
 
+## Usage
+
+To use, simply call the CLI `compact` script with the path to the directory to scan.
+
+    $ php compact ../project/dir
+
+If you want the output saved in the `results/` directory then pass a truthy value as the second param.
+
+    $ php compact ../project/dir TRUE
+
 ## License (MIT License)
 
 Copyright (c) 2011 [David Pennington](http://xeoncross.com)
