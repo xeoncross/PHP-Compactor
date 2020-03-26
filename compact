@@ -24,10 +24,16 @@ if(empty($argv[1]) OR ! ($path = realpath(__DIR__ . '/' . $argv[1])))
 
 $output_file = FALSE;
 
-// If true, then save the results in a file in this directory
+// If a destination folder, then save the results in a file in this directory if it exists
 if( ! empty($argv[2]))
 {
-	$output_file = 'results/' . preg_replace('/\W/', '_', $argv[1]) . '.php';
+	// Set the results folder as a default destination folder
+	$dest_folder = ($argv[2] === "true" ? './results' : $argv[2]);
+
+	if ($dir = realpath(__DIR__ . '/' . $dest_folder))
+		$output_file = $dir . '/' . preg_replace('/\W/', '_', $argv[1]) . '.php';
+	else
+		die("The destination folder does not exist.\n");
 }
 
 // Recursive
