@@ -14,6 +14,10 @@ If you want the output saved in the `results/` directory then pass a truthy valu
 
     $ php compact ../project/dir TRUE
 
+If you want the output saved in a custom directory then pass an existed directory as the second param.
+
+    $ php compact ../project/dir ./dist
+
 ## License (MIT License)
 
 Copyright (c) 2011 [David Pennington](http://xeoncross.com)
